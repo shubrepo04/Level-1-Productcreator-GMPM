@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm init:*)",
+      "Bash(cmd.exe /c \"node --version && npm --version\")",
+      "Bash(cmd.exe /c \"where node && where npm\")",
+      "Read(//c/Users/shubham.shukla/AppData/Roaming/**)",
+      "Read(//c/Users/shubham.shukla/AppData/Local/**)",
+      "Read(//c/Users/shubham.shukla/**)",
+      "Read(//c/Users/shubham.shukla/AppData/Local/Programs//**)",
+      "Bash(powershell.exe -Command \"Get-Command node -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source; Get-Command npm -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source\")",
+      "Bash(npm --version)",
+      "Bash(npm install:*)",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(curl -s -X POST http://localhost:3000/api/research -H \"Content-Type: application/json\" -d '{\"\"\"\"question\"\"\"\":\"\"\"\"What are competitors and pain points in AI note-taking apps?\"\"\"\"}')",
+      "Bash(pkill -f \"node src/server.js\")",
+      "Bash(vercel --version)",
+      "Bash(\"/c/Users/shubham.shukla/AppData/Roaming/npm/vercel.cmd\" --version)",
+      "Bash(\"/c/Users/shubham.shukla/AppData/Roaming/npm/vercel.cmd\" deploy:*)",
+      "Bash(curl -s https://pm-research-assistant-two.vercel.app/)",
+      "Bash(curl -s -X POST https://pm-research-assistant-two.vercel.app/api/research -H \"Content-Type: application/json\" -d '{\"\"\"\"question\"\"\"\":\"\"\"\"What are competitors and pain points in AI note-taking apps?\"\"\"\"}')",
+      "Bash(mkdir -p \"/c/Users/shubham.shukla/Desktop/Product Manager God mode/Products/01-llm-apis/prd-generator/.claude/commands\")",
+      "Bash(cp \"/c/Users/shubham.shukla/Desktop/Product Manager God mode/Products/01-llm-apis/.claude/commands/test-prd.md\" \"/c/Users/shubham.shukla/Desktop/Product Manager God mode/Products/01-llm-apis/prd-generator/.claude/commands/test-prd.md\")",
+      "Bash(curl -s https://prd-generator-sigma.vercel.app/)",
+      "Bash(git config:*)",
+      "Bash(find '/c/Users/shubham.shukla/Desktop/Product Manager God mode/Products/01-llm-apis' -not -path */node_modules/* -not -name .env -type f)"
+    ]
+  }
+}

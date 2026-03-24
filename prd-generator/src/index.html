@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PRD Generator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d0d0f;
+      --surface:   #16161a;
+      --border:    #2a2a30;
+      --accent:    #7c6af7;
+      --accent2:   #4fc3a1;
+      --text:      #e8e8ed;
+      --muted:     #6b6b78;
+      --danger:    #f87171;
+      --warn:      #fbbf24;
+      --ok:        #4fc3a1;
+      --must:      #f87171;
+      --should:    #fbbf24;
+      --nice:      #6b6b78;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ── */
+    .container { max-width: 900px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    header { text-align: center; margin-bottom: 40px; }
+    header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
+    header h1 span { color: var(--accent); }
+    header p { color: var(--muted); margin-top: 8px; font-size: 0.95rem; }
+
+    /* ── Input card ── */
+    .input-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+    .input-card label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      padding: 12px 14px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    textarea:focus { border-color: var(--accent); }
+    textarea::placeholder { color: var(--muted); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary  { background: var(--accent); color: #fff; width: 100%; justify-content: center; margin-top: 14px; }
+    .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Error ── */
+    #error {
+      display: none;
+      background: #2a1a1a;
+      border: 1px solid #7f1d1d;
+      border-radius: 8px;
+      color: var(--danger);
+      padding: 14px 16px;
+      margin-bottom: 24px;
+      font-size: 0.9rem;
+    }
+
+    /* ── PRD output ── */
+    #prd { display: none; }
+
+    .prd-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .prd-title { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.3px; }
+    .prd-meta  { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .badge-draft    { background: #1e2a3a; color: #60a5fa; }
+    .badge-review   { background: #2a2010; color: var(--warn); }
+    .badge-approved { background: #0e2a1e; color: var(--ok); }
+    .badge-high     { background: #0e2a1e; color: var(--ok); }
+    .badge-medium   { background: #2a2010; color: var(--warn); }
+    .badge-low      { background: #2a1a1a; color: var(--danger); }
+    .badge-must     { background: #2a1a1a; color: var(--must); }
+    .badge-should   { background: #2a2010; color: var(--should); }
+    .badge-nice     { background: #1a1a22; color: var(--nice); }
+
+    .export-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* ── Sections ── */
+    .section { margin-bottom: 32px; }
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .prose {
+      color: var(--text);
+      line-height: 1.75;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    /* ── Cards grid ── */
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .card-title { font-weight: 600; margin-bottom: 4px; }
+    .card-sub   { font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; }
+    .card-body  { font-size: 0.9rem; color: var(--text); }
+
+    /* ── Table ── */
+    .tbl { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .tbl th {
+      text-align: left;
+      padding: 10px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .tbl td {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .tbl tr:hover td { background: var(--surface); }
+
+    /* ── Lists ── */
+    .tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .plain-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .plain-list li {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.9rem;
+    }
+    .plain-list li::before { content: '→ '; color: var(--accent); font-weight: 700; }
+
+    /* ── FR list ── */
+    .fr-list { display: flex; flex-direction: column; gap: 8px; }
+    .fr-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .fr-id { font-size: 0.75rem; font-weight: 700; color: var(--accent); white-space: nowrap; padding-top: 2px; }
+    .fr-desc { flex: 1; font-size: 0.9rem; }
+
+    /* ── Journey ── */
+    .journey { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+    .journey-persona { font-weight: 700; margin-bottom: 10px; }
+    .journey-steps { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; counter-reset: step; }
+    .journey-step {
+      display: flex;
+      gap: 10px;
+      font-size: 0.88rem;
+      counter-increment: step;
+    }
+    .journey-step::before {
+      content: counter(step);
+      min-width: 22px;
+      height: 22px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .journey-outcome { font-size: 0.85rem; color: var(--ok); }
+
+    /* ── Risk table colours ── */
+    .risk-high   { color: var(--danger); font-weight: 600; }
+    .risk-medium { color: var(--warn); font-weight: 600; }
+    .risk-low    { color: var(--muted); }
+
+    /* ── Follow-up ── */
+    .followup-list { display: flex; flex-direction: column; gap: 8px; counter-reset: fq; }
+    .followup-item {
+      display: flex;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.9rem;
+      counter-increment: fq;
+    }
+    .followup-item::before {
+      content: 'Q' counter(fq);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      padding-top: 2px;
+    }
+
+    /* ── Confidence banner ── */
+    .confidence-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .confidence-label { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 48px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); display: inline-block; margin-right: 6px; }
+    .dot.active { background: var(--ok); }
+
+    /* ── Spinner ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>PM <span>PRD Generator</span></h1>
+    <p>Paste a problem statement — get a complete, structured PRD.</p>
+  </header>
+
+  <div class="input-card">
+    <label for="problem">Problem Statement</label>
+    <textarea id="problem" placeholder="e.g. Our mobile app users are dropping off during onboarding because the setup flow requires too many steps and asks for information that isn't needed upfront. We're losing ~40% of new users before they complete their first action..."></textarea>
+    <button class="btn btn-primary" id="generateBtn" onclick="generate()">
+      Generate PRD
+    </button>
+  </div>
+
+  <div id="error"></div>
+
+  <!-- ── PRD Output ─────────────────────────────────────── -->
+  <div id="prd">
+
+    <div class="prd-header">
+      <div>
+        <div class="prd-title" id="prdTitle"></div>
+        <div class="prd-meta" style="margin-top:8px">
+          <span id="statusBadge" class="badge"></span>
+          <span id="versionBadge" class="badge badge-draft"></span>
+        </div>
+      </div>
+      <div class="export-actions">
+        <button class="btn btn-secondary" onclick="downloadJSON()">⬇ Download JSON</button>
+        <button class="btn btn-secondary" onclick="copyMarkdown()">⎘ Copy as Markdown</button>
+      </div>
+    </div>
+
+    <!-- Problem Statement -->
+    <div class="section">
+      <div class="section-title">Problem Statement</div>
+      <div class="prose" id="problemStatement"></div>
+    </div>
+
+    <!-- Target Users -->
+    <div class="section">
+      <div class="section-title">Target Users</div>
+      <div class="cards" id="targetUsers"></div>
+    </div>
+
+    <!-- Success Metrics -->
+    <div class="section">
+      <div class="section-title">Success Metrics</div>
+      <table class="tbl" id="metricsTable">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Target</th>
+            <th>How to Measure</th>
+          </tr>
+        </thead>
+        <tbody id="metricsBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Out of Scope -->
+    <div class="section">
+      <div class="section-title">Out of Scope</div>
+      <div class="tag-list" id="outOfScope"></div>
+    </div>
+
+    <!-- Proposed Solution -->
+    <div class="section">
+      <div class="section-title">Proposed Solution</div>
+      <div class="prose" id="proposedSolution"></div>
+    </div>
+
+    <!-- Functional Requirements -->
+    <div class="section">
+      <div class="section-title">Functional Requirements</div>
+      <div class="fr-list" id="frList"></div>
+    </div>
+
+    <!-- Non-Functional Requirements -->
+    <div class="section">
+      <div class="section-title">Non-Functional Requirements</div>
+      <div class="cards" id="nfrCards"></div>
+    </div>
+
+    <!-- Technical Considerations -->
+    <div class="section">
+      <div class="section-title">Technical Considerations</div>
+      <ul class="plain-list" id="techList"></ul>
+    </div>
+
+    <!-- Open Questions -->
+    <div class="section">
+      <div class="section-title">Open Questions</div>
+      <table class="tbl">
+        <thead>
+          <tr><th>Question</th><th>Owner</th><th>Due Date</th></tr>
+        </thead>
+        <tbody id="openQBody"></tbody>
+      </table>
+    </div>
+
+    <!-- User Journeys -->
+    <div class="section">
+      <div class="section-title">User Journeys</div>
+      <div id="journeys"></div>
+    </div>
+
+    <!-- Edge Cases -->
+    <div class="section">
+      <div class="section-title">Edge Cases</div>
+      <ul class="plain-list" id="edgeCases"></ul>
+    </div>
+
+    <!-- Design Principles -->
+    <div class="section">
+      <div class="section-title">Design Principles</div>
+      <div class="tag-list" id="designPrinciples"></div>
+    </div>
+
+    <!-- Milestones -->
+    <div class="section">
+      <div class="section-title">Milestones</div>
+      <div class="cards" id="milestones"></div>
+    </div>
+
+    <!-- Risks -->
+    <div class="section">
+      <div class="section-title">Risks</div>
+      <table class="tbl">
+        <thead>
+          <tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr>
+        </thead>
+        <tbody id="risksBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Confidence -->
+    <div class="section">
+      <div class="section-title">PRD Confidence</div>
+      <div class="confidence-bar">
+        <span id="confidenceBadge" class="badge"></span>
+        <span class="confidence-label" id="confidenceLabel"></span>
+      </div>
+    </div>
+
+    <!-- Follow-up Questions -->
+    <div class="section">
+      <div class="section-title">Follow-up Questions</div>
+      <div class="followup-list" id="followupList"></div>
+    </div>
+
+  </div><!-- /#prd -->
+
+  <footer>
+    <div><span class="dot" id="statusDot"></span><span id="modelLabel">—</span></div>
+    <div id="msLabel">—</div>
+  </footer>
+
+</div><!-- /.container -->
+
+<script>
+  let lastData = null;
+
+  function esc(str) {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function badgeClass(val) {
+    const v = String(val).toLowerCase();
+    if (v === 'draft')    return 'badge-draft';
+    if (v === 'review')   return 'badge-review';
+    if (v === 'approved') return 'badge-approved';
+    if (v === 'high')     return 'badge-high';
+    if (v === 'medium')   return 'badge-medium';
+    if (v === 'low')      return 'badge-low';
+    if (v === 'must')     return 'badge-must';
+    if (v === 'should')   return 'badge-should';
+    if (v.includes('nice')) return 'badge-nice';
+    return 'badge-draft';
+  }
+
+  function riskClass(val) {
+    const v = String(val).toLowerCase();
+    if (v === 'high')   return 'risk-high';
+    if (v === 'medium') return 'risk-medium';
+    return 'risk-low';
+  }
+
+  async function generate() {
+    const problem = document.getElementById('problem').value.trim();
+    if (!problem) return;
+
+    const btn = document.getElementById('generateBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Generating…';
+    document.getElementById('error').style.display = 'none';
+    document.getElementById('prd').style.display   = 'none';
+    document.getElementById('statusDot').className = 'dot';
+
+    try {
+      const res  = await fetch('/api/prd', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ problem }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? `Server error ${res.status}`);
+
+      lastData = json;
+      renderPRD(json);
+
+    } catch (err) {
+      const el = document.getElementById('error');
+      el.textContent = err.message;
+      el.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Generate PRD';
+    }
+  }
+
+  function renderPRD({ data, meta }) {
+    // ── Header ──
+    document.getElementById('prdTitle').textContent = data.title ?? 'Untitled PRD';
+    const sb = document.getElementById('statusBadge');
+    sb.textContent  = data.status ?? 'draft';
+    sb.className    = `badge ${badgeClass(data.status ?? 'draft')}`;
+    const vb = document.getElementById('versionBadge');
+    vb.textContent  = `v${data.version ?? '1.0'}`;
+    vb.className    = 'badge badge-draft';
+
+    // ── Problem ──
+    document.getElementById('problemStatement').textContent = data.problem_statement ?? '';
+
+    // ── Target Users ──
+    const tu = document.getElementById('targetUsers');
+    tu.innerHTML = '';
+    (data.target_users ?? []).forEach(u => {
+      tu.innerHTML += `
+        <div class="card">
+          <div class="card-title">${esc(u.persona)}</div>
+          <div class="card-sub">${esc(u.description)}</div>
+          <div class="card-body">🔥 ${esc(u.pain)}</div>
+        </div>`;
+    });
+
+    // ── Success Metrics ──
+    const mb = document.getElementById('metricsBody');
+    mb.innerHTML = '';
+    (data.success_metrics ?? []).forEach(m => {
+      mb.innerHTML += `
+        <tr>
+          <td>${esc(m.metric)}</td>
+          <td>${esc(m.target)}</td>
+          <td>${esc(m.measurement_method)}</td>
+        </tr>`;
+    });
+
+    // ── Out of Scope ──
+    const oos = document.getElementById('outOfScope');
+    oos.innerHTML = '';
+    (data.out_of_scope ?? []).forEach(item => {
+      oos.innerHTML += `<span class="tag">${esc(item)}</span>`;
+    });
+
+    // ── Proposed Solution ──
+    document.getElementById('proposedSolution').textContent = data.proposed_solution ?? '';
+
+    // ── Functional Requirements ──
+    const frl = document.getElementById('frList');
+    frl.innerHTML = '';
+    (data.functional_requirements ?? []).forEach(fr => {
+      const p = String(fr.priority ?? '').toLowerCase();
+      const badgeName = p.includes('must') ? 'must' : p.includes('should') ? 'should' : 'nice';
+      frl.innerHTML += `
+        <div class="fr-item">
+          <span class="fr-id">${esc(fr.id)}</span>
+          <span class="fr-desc">${esc(fr.description)}</span>
+          <span class="badge badge-${badgeName}">${esc(fr.priority)}</span>
+        </div>`;
+    });
+
+    // ── Non-Functional Requirements ──
+    const nfr = document.getElementById('nfrCards');
+    nfr.innerHTML = '';
+    (data.non_functional_requirements ?? []).forEach(n => {
+      nfr.innerHTML += `
+        <div class="card">
+          <div class="card-title">${esc(n.category)}</div>
+          <div class="card-body">${esc(n.requirement)}</div>
+        </div>`;
+    });
+
+    // ── Technical Considerations ──
+    const tl = document.getElementById('techList');
+    tl.innerHTML = '';
+    (data.technical_considerations ?? []).forEach(t => {
+      tl.innerHTML += `<li>${esc(t)}</li>`;
+    });
+
+    // ── Open Questions ──
+    const oqb = document.getElementById('openQBody');
+    oqb.innerHTML = '';
+    (data.open_questions ?? []).forEach(q => {
+      oqb.innerHTML += `
+        <tr>
+          <td>${esc(q.question)}</td>
+          <td>${esc(q.owner)}</td>
+          <td>${esc(q.due_date ?? '—')}</td>
+        </tr>`;
+    });
+
+    // ── User Journeys ──
+    const jc = document.getElementById('journeys');
+    jc.innerHTML = '';
+    (data.user_journeys ?? []).forEach(j => {
+      const steps = (j.steps ?? []).map(s => `<div class="journey-step">${esc(s)}</div>`).join('');
+      jc.innerHTML += `
+        <div class="journey">
+          <div class="journey-persona">👤 ${esc(j.persona)}</div>
+          <div class="journey-steps">${steps}</div>
+          <div class="journey-outcome">✓ ${esc(j.desired_outcome)}</div>
+        </div>`;
+    });
+
+    // ── Edge Cases ──
+    const ec = document.getElementById('edgeCases');
+    ec.innerHTML = '';
+    (data.edge_cases ?? []).forEach(e => {
+      ec.innerHTML += `<li>${esc(e)}</li>`;
+    });
+
+    // ── Design Principles ──
+    const dp = document.getElementById('designPrinciples');
+    dp.innerHTML = '';
+    (data.design_principles ?? []).forEach(p => {
+      dp.innerHTML += `<span class="tag">${esc(p)}</span>`;
+    });
+
+    // ── Milestones ──
+    const ms_el = document.getElementById('milestones');
+    ms_el.innerHTML = '';
+    (data.milestones ?? []).forEach((m, i) => {
+      const deps = (m.dependencies ?? []).join(', ') || 'None';
+      ms_el.innerHTML += `
+        <div class="card">
+          <div class="card-title">${i + 1}. ${esc(m.name)}</div>
+          <div class="card-body">${esc(m.description)}</div>
+          <div class="card-sub" style="margin-top:8px">Deps: ${esc(deps)}</div>
+        </div>`;
+    });
+
+    // ── Risks ──
+    const rb = document.getElementById('risksBody');
+    rb.innerHTML = '';
+    (data.risks ?? []).forEach(r => {
+      rb.innerHTML += `
+        <tr>
+          <td>${esc(r.risk)}</td>
+          <td class="${riskClass(r.likelihood)}">${esc(r.likelihood)}</td>
+          <td class="${riskClass(r.impact)}">${esc(r.impact)}</td>
+          <td>${esc(r.mitigation)}</td>
+        </tr>`;
+    });
+
+    // ── Confidence ──
+    const conf   = data.confidence ?? 'medium';
+    const cb     = document.getElementById('confidenceBadge');
+    cb.textContent = conf;
+    cb.className   = `badge ${badgeClass(conf)}`;
+    const labels = { high: 'Model is confident this PRD is complete and actionable.', medium: 'Some sections may need further refinement — check follow-up questions.', low: 'Limited input provided — PRD is a starting point only.' };
+    document.getElementById('confidenceLabel').textContent = labels[conf.toLowerCase()] ?? '';
+
+    // ── Follow-up Questions ──
+    const fl = document.getElementById('followupList');
+    fl.innerHTML = '';
+    (data.follow_up_questions ?? []).forEach(q => {
+      fl.innerHTML += `<div class="followup-item">${esc(q)}</div>`;
+    });
+
+    // ── Footer ──
+    document.getElementById('modelLabel').textContent = meta.model;
+    document.getElementById('msLabel').textContent    = `${meta.ms} ms`;
+    document.getElementById('statusDot').className   = 'dot active';
+
+    document.getElementById('prd').style.display = 'block';
+    document.getElementById('prd').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── Download JSON ──────────────────────────────────────────────────────────
+  function downloadJSON() {
+    if (!lastData) return;
+    const blob = new Blob([JSON.stringify(lastData.data, null, 2)], { type: 'application/json' });
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = `prd-${slugify(lastData.data.title)}.json`;
+    a.click();
+  }
+
+  // ── Copy as Markdown ───────────────────────────────────────────────────────
+  function copyMarkdown() {
+    if (!lastData) return;
+    const d   = lastData.data;
+    const sep = '\n\n---\n\n';
+    let md = `# ${d.title ?? 'PRD'}\n\n`;
+    md += `**Status:** ${d.status ?? '—'}  |  **Version:** ${d.version ?? '—'}\n`;
+    md += sep;
+
+    md += `## Problem Statement\n\n${d.problem_statement ?? ''}\n`;
+    md += sep;
+
+    md += `## Target Users\n\n`;
+    (d.target_users ?? []).forEach(u => {
+      md += `**${u.persona}** — ${u.description}\n> Pain: ${u.pain}\n\n`;
+    });
+
+    md += `## Success Metrics\n\n| Metric | Target | Measurement |\n|---|---|---|\n`;
+    (d.success_metrics ?? []).forEach(m => {
+      md += `| ${m.metric} | ${m.target} | ${m.measurement_method} |\n`;
+    });
+    md += sep;
+
+    md += `## Out of Scope\n\n`;
+    (d.out_of_scope ?? []).forEach(i => { md += `- ${i}\n`; });
+    md += sep;
+
+    md += `## Proposed Solution\n\n${d.proposed_solution ?? ''}\n`;
+    md += sep;
+
+    md += `## Functional Requirements\n\n`;
+    (d.functional_requirements ?? []).forEach(fr => {
+      md += `- **${fr.id}** [${fr.priority}] ${fr.description}\n`;
+    });
+    md += sep;
+
+    md += `## Non-Functional Requirements\n\n`;
+    (d.non_functional_requirements ?? []).forEach(n => {
+      md += `- **${n.category}**: ${n.requirement}\n`;
+    });
+    md += sep;
+
+    md += `## Technical Considerations\n\n`;
+    (d.technical_considerations ?? []).forEach(t => { md += `- ${t}\n`; });
+    md += sep;
+
+    md += `## Open Questions\n\n| Question | Owner | Due |\n|---|---|---|\n`;
+    (d.open_questions ?? []).forEach(q => {
+      md += `| ${q.question} | ${q.owner} | ${q.due_date ?? '—'} |\n`;
+    });
+    md += sep;
+
+    md += `## Milestones\n\n`;
+    (d.milestones ?? []).forEach((m, i) => {
+      md += `### ${i + 1}. ${m.name}\n${m.description}\n\n`;
+    });
+
+    md += `## Risks\n\n| Risk | Likelihood | Impact | Mitigation |\n|---|---|---|---|\n`;
+    (d.risks ?? []).forEach(r => {
+      md += `| ${r.risk} | ${r.likelihood} | ${r.impact} | ${r.mitigation} |\n`;
+    });
+    md += sep;
+
+    md += `## Follow-up Questions\n\n`;
+    (d.follow_up_questions ?? []).forEach((q, i) => { md += `${i + 1}. ${q}\n`; });
+
+    navigator.clipboard.writeText(md).then(() => {
+      const btn = document.querySelector('[onclick="copyMarkdown()"]');
+      const orig = btn.textContent;
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    });
+  }
+
+  function slugify(str) {
+    return String(str ?? 'prd').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
+
+  // Submit on Cmd/Ctrl + Enter
+  document.getElementById('problem').addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') generate();
+  });
+</script>
+</body>
+</html>

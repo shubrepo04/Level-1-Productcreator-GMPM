@@ -1,0 +1,14 @@
+{
+  "title":             "short feature name",
+  "tldr":              "one sentence for a CEO",
+  "problem_statement": "refined version of input",
+  "target_users":   [{ "segment":"", "pain":"", "today":"" }],
+  "goals":          ["measurable goal"],
+  "non_goals":      ["explicit out-of-scope item"],
+  "user_stories":   [{ "id":"US-001", "as_a":"", "i_want":"",
+    "so_that":"", "acceptance_criteria":["Given... When... Then..."],
+    "priority":"must_have | should_have | nice_to_have" }],
+  "success_metrics":[{ "metric":"", "target":"", "how":"" }],
+  "edge_cases":     [{ "scenario":"", "risk":"high|medium|low" }],
+  "open_questions": [{ "question":"", "owner":"", "blocking":true }]
+}

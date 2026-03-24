@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PM Research Assistant</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f1117;
+      --surface:   #1a1d27;
+      --border:    #2a2d3a;
+      --accent:    #6c63ff;
+      --accent-h:  #857dff;
+      --text:      #e8eaf0;
+      --muted:     #7b7f94;
+      --success:   #4ade80;
+      --error:     #f87171;
+      --tag-bg:    #22263a;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+    }
+
+    /* ── Header ── */
+    header {
+      width: 100%;
+      max-width: 760px;
+      margin-bottom: 2.5rem;
+    }
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    header h1 span { color: var(--accent); }
+    header p {
+      margin-top: 0.4rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* ── Card ── */
+    .card {
+      width: 100%;
+      max-width: 760px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── Input area ── */
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+    }
+    textarea {
+      width: 100%;
+      min-height: 110px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: inherit;
+      padding: 0.8rem 1rem;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea:focus { border-color: var(--accent); }
+    textarea::placeholder { color: var(--muted); }
+
+    /* ── Button ── */
+    button#researchBtn {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+    button#researchBtn:hover:not(:disabled) { background: var(--accent-h); }
+    button#researchBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Error banner ── */
+    #errorBox {
+      display: none;
+      background: rgba(248,113,113,0.1);
+      border: 1px solid rgba(248,113,113,0.3);
+      color: var(--error);
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      margin-top: 1rem;
+    }
+
+    /* ── Results ── */
+    #results { display: none; }
+
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    /* Competitors */
+    .competitor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+    .competitor-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+    }
+    .competitor-card .name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.3rem;
+    }
+    .competitor-card .positioning {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    /* Pain points */
+    .pain-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .pain-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .pain-list li::before {
+      content: '⚡';
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Opportunity */
+    .opportunity-box {
+      background: rgba(108,99,255,0.08);
+      border: 1px solid rgba(108,99,255,0.25);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    /* Tags (for any extra array fields) */
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .tag {
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.25rem 0.7rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* Raw JSON toggle */
+    details {
+      margin-top: 0.5rem;
+    }
+    summary {
+      font-size: 0.8rem;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+    summary:hover { color: var(--text); }
+    pre#rawJson {
+      margin-top: 0.75rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* ── Footer ── */
+    footer {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+    footer span { display: flex; align-items: center; gap: 0.4rem; }
+    .dot {
+      width: 6px; height: 6px;
+      background: var(--success);
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>PM <span>Research Assistant</span></h1>
+    <p>Ask a product research question — get structured competitive intelligence.</p>
+  </header>
+
+  <!-- Input card -->
+  <div class="card">
+    <label for="questionInput">Your research question</label>
+    <textarea
+      id="questionInput"
+      placeholder="e.g. What are the main competitors, pain points, and opportunities in the project management SaaS space for remote teams?"
+    ></textarea>
+    <button id="researchBtn" onclick="runResearch()">Research</button>
+    <div id="errorBox"></div>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+
+    <!-- Competitors -->
+    <div class="card" id="competitorsCard">
+      <div class="section-title">Competitors</div>
+      <div class="competitor-grid" id="competitorGrid"></div>
+    </div>
+
+    <!-- Pain Points -->
+    <div class="card" id="painCard">
+      <div class="section-title">Pain Points</div>
+      <ul class="pain-list" id="painList"></ul>
+    </div>
+
+    <!-- Opportunity -->
+    <div class="card" id="opportunityCard">
+      <div class="section-title">Opportunity</div>
+      <div class="opportunity-box" id="opportunityBox"></div>
+    </div>
+
+    <!-- Follow-up questions -->
+    <div class="card" id="followUpCard">
+      <div class="section-title">Follow-up Questions</div>
+      <ul class="pain-list" id="followUpList"></ul>
+    </div>
+
+    <!-- Raw JSON toggle -->
+    <div class="card">
+      <details>
+        <summary>View raw JSON response</summary>
+        <pre id="rawJson"></pre>
+      </details>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <span><span class="dot" id="statusDot" style="background:var(--muted)"></span> <span id="modelLabel">—</span></span>
+    <span id="timeLabel">—</span>
+  </footer>
+
+  <script>
+    async function runResearch() {
+      const btn      = document.getElementById('researchBtn');
+      const textarea = document.getElementById('questionInput');
+      const errorBox = document.getElementById('errorBox');
+      const results  = document.getElementById('results');
+
+      const question = textarea.value.trim();
+      if (!question) {
+        showError('Please enter a research question.');
+        return;
+      }
+
+      // Reset state
+      errorBox.style.display = 'none';
+      results.style.display  = 'none';
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Researching…';
+
+      try {
+        const res = await fetch('/api/research', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question }),
+        });
+
+        const json = await res.json();
+
+        if (!res.ok) {
+          throw new Error(json.error ?? `Server error ${res.status}`);
+        }
+
+        renderResults(json);
+
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Research';
+      }
+    }
+
+    function renderResults({ data, meta }) {
+      // Footer
+      document.getElementById('modelLabel').textContent = meta?.model ?? '—';
+      document.getElementById('timeLabel').textContent  = meta?.ms ? `${meta.ms} ms` : '—';
+      document.getElementById('statusDot').style.background = 'var(--success)';
+
+      // Competitors
+      const grid = document.getElementById('competitorGrid');
+      grid.innerHTML = '';
+      const competitors = data?.competitors ?? [];
+      if (competitors.length) {
+        document.getElementById('competitorsCard').style.display = '';
+        competitors.forEach(c => {
+          const card = document.createElement('div');
+          card.className = 'competitor-card';
+          card.innerHTML = `
+            <div class="name">${esc(c.name ?? c)}</div>
+            ${ c.positioning ? `<div class="positioning">${esc(c.positioning)}</div>` : '' }
+            ${ c.weakness   ? `<div class="positioning" style="color:var(--error);margin-top:4px">⚠ ${esc(c.weakness)}</div>` : '' }
+          `;
+          grid.appendChild(card);
+        });
+      } else {
+        document.getElementById('competitorsCard').style.display = 'none';
+      }
+
+      // Pain points
+      const painList = document.getElementById('painList');
+      painList.innerHTML = '';
+      const pains = data?.pain_points ?? data?.painPoints ?? [];
+      if (pains.length) {
+        document.getElementById('painCard').style.display = '';
+        pains.forEach(p => {
+          const li = document.createElement('li');
+          li.textContent = typeof p === 'string' ? p : p.pain ?? p.description ?? JSON.stringify(p);
+          painList.appendChild(li);
+        });
+      } else {
+        document.getElementById('painCard').style.display = 'none';
+      }
+
+      // Opportunity
+      const opp = data?.opportunity ?? data?.opportunities ?? '';
+      if (opp) {
+        document.getElementById('opportunityCard').style.display = '';
+        document.getElementById('opportunityBox').textContent =
+          Array.isArray(opp) ? opp.join('\n\n') : opp;
+      } else {
+        document.getElementById('opportunityCard').style.display = 'none';
+      }
+
+      // Follow-up questions
+      const followUps = data?.follow_up ?? [];
+      const followUpList = document.getElementById('followUpList');
+      followUpList.innerHTML = '';
+      if (followUps.length) {
+        document.getElementById('followUpCard').style.display = '';
+        followUps.forEach(q => {
+          const li = document.createElement('li');
+          li.textContent = q;
+          followUpList.appendChild(li);
+        });
+      } else {
+        document.getElementById('followUpCard').style.display = 'none';
+      }
+
+      // Raw JSON
+      document.getElementById('rawJson').textContent = JSON.stringify(data, null, 2);
+
+      // Show
+      document.getElementById('results').style.display = 'block';
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function showError(msg) {
+      const box = document.getElementById('errorBox');
+      box.textContent = `Error: ${msg}`;
+      box.style.display = 'block';
+    }
+
+    function esc(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Allow Cmd/Ctrl+Enter to submit
+    document.getElementById('questionInput').addEventListener('keydown', e => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') runResearch();
+    });
+  </script>
+</body>
+</html>
