@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(powershell -Command \":*)",
-      "Bash(grep -v \"^/c/Users/shubham.shukla/Desktop/Product Manager God mode/Products/01-llm-apis$\")"
-    ]
-  }
-}
