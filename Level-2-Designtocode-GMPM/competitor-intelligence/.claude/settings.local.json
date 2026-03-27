@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__dd82ce05-fa64-47e0-b6d2-c4377f1dc1ee__create_new_file",
+      "mcp__dd82ce05-fa64-47e0-b6d2-c4377f1dc1ee__use_figma",
+      "Bash(npm --version)",
+      "Bash(npm create:*)",
+      "Bash(npm install:*)",
+      "Bash(grep -E \"^\\(react|react-dom|groq-sdk|dotenv|tailwindcss|vite|@vitejs\\)$\")",
+      "Bash(npx vite:*)",
+      "Bash(npm run:*)",
+      "Bash(mv \"shared/prompts/prd-v1.txt.txt\" \"shared/prompts/prd-v1.txt\")",
+      "Bash(mv \"shared/schemas/prd-output.json.txt\" \"shared/schemas/prd-output.json\")",
+      "Bash(rm \".claude/commands/New Text Document.txt\")",
+      "Bash(rmdir \"competitor-intelligence\")",
+      "Bash(mkdir -p \"Level-1-Productcreator-GMPM\")",
+      "Bash(mkdir -p \"Level-2-Designtocode-GMPM\")",
+      "Bash(mv \"research assistant\" \"Level-1-Productcreator-GMPM/research-assistant\")",
+      "Bash(mv \"prd-generator\" \"Level-1-Productcreator-GMPM/prd-generator\")",
+      "Bash(mv \"shared\" \"Level-1-Productcreator-GMPM/shared\")",
+      "Bash(mv \"CLAUDE.md\" \"Level-1-Productcreator-GMPM/CLAUDE.md\")",
+      "Bash(mv \"README.md\" \"Level-1-Productcreator-GMPM/README.md\")",
+      "Bash(cmd /c \"move \"\"C:\\\\Users\\\\shubham.shukla\\\\Desktop\\\\Product Manager God mode\\\\Products\\\\01-llm-apis\\\\Level 2 Figma\"\" \"\"C:\\\\Users\\\\shubham.shukla\\\\Desktop\\\\Product Manager God mode\\\\Products\\\\01-llm-apis\\\\Level-2-Designtocode-GMPM\\\\competitor-intelligence\"\"\")",
+      "Bash(powershell -Command \"Move-Item -Path ''C:\\\\Users\\\\shubham.shukla\\\\Desktop\\\\Product Manager God mode\\\\Products\\\\01-llm-apis\\\\Level 2 Figma'' -Destination ''C:\\\\Users\\\\shubham.shukla\\\\Desktop\\\\Product Manager God mode\\\\Products\\\\01-llm-apis\\\\Level-2-Designtocode-GMPM\\\\competitor-intelligence'' -Force; Write-Host ''Done''\")",
+      "Bash(powershell -Command \"Get-Process | Where-Object { $_Name -match ''node'' } | Select-Object Id, Name, Path | Format-Table -AutoSize\")",
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(powershell -Command \"Stop-Process -Name node -Force -ErrorAction SilentlyContinue; Write-Host ''Node processes stopped''\")",
+      "Bash(powershell -Command \"Move-Item -Path ''C:\\\\Users\\\\shubham.shukla\\\\Desktop\\\\Product Manager God mode\\\\Products\\\\01-llm-apis\\\\Level 2 Figma'' -Destination ''C:\\\\Users\\\\shubham.shukla\\\\Desktop\\\\Product Manager God mode\\\\Products\\\\01-llm-apis\\\\Level-2-Designtocode-GMPM\\\\competitor-intelligence''; Write-Host ''Moved''\")",
+      "Bash(robocopy \"C:\\\\Users\\\\shubham.shukla\\\\Desktop\\\\Product Manager God mode\\\\Products\\\\01-llm-apis\\\\Level 2 Figma\" \"C:\\\\Users\\\\shubham.shukla\\\\Desktop\\\\Product Manager God mode\\\\Products\\\\01-llm-apis\\\\Level-2-Designtocode-GMPM\\\\competitor-intelligence\" /E /MOVE /XD node_modules /NFL /NDL /NJH /NJS)",
+      "Bash(echo \"Exit: $LASTEXITCODE\")",
+      "Bash(powershell -Command \":*)"
+    ]
+  }
+}
