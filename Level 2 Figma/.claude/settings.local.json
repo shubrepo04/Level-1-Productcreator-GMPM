@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__dd82ce05-fa64-47e0-b6d2-c4377f1dc1ee__create_new_file",
+      "mcp__dd82ce05-fa64-47e0-b6d2-c4377f1dc1ee__use_figma",
+      "Bash(npm --version)",
+      "Bash(npm create:*)",
+      "Bash(npm install:*)",
+      "Bash(grep -E \"^\\(react|react-dom|groq-sdk|dotenv|tailwindcss|vite|@vitejs\\)$\")",
+      "Bash(npx vite:*)",
+      "Bash(npm run:*)"
+    ]
+  }
+}

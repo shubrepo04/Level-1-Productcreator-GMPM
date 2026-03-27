@@ -23,7 +23,8 @@
       "Bash(cp \"/c/Users/shubham.shukla/Desktop/Product Manager God mode/Products/01-llm-apis/.claude/commands/test-prd.md\" \"/c/Users/shubham.shukla/Desktop/Product Manager God mode/Products/01-llm-apis/prd-generator/.claude/commands/test-prd.md\")",
       "Bash(curl -s https://prd-generator-sigma.vercel.app/)",
       "Bash(git config:*)",
-      "Bash(find '/c/Users/shubham.shukla/Desktop/Product Manager God mode/Products/01-llm-apis' -not -path */node_modules/* -not -name .env -type f)"
+      "Bash(find '/c/Users/shubham.shukla/Desktop/Product Manager God mode/Products/01-llm-apis' -not -path */node_modules/* -not -name .env -type f)",
+      "Bash(gh repo:*)"
     ]
   }
 }

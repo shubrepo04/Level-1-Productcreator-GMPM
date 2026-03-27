@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    background-color: #0D1117;
+    color: #E6EDF3;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0D1117;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #30363D;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #484F58;
+  }
+}
+
+@layer utilities {
+  .glow-primary {
+    box-shadow: 0 0 24px rgba(232, 69, 10, 0.18);
+  }
+
+  .glow-primary-sm {
+    box-shadow: 0 0 12px rgba(232, 69, 10, 0.12);
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      #161B22 25%,
+      #1f2731 50%,
+      #161B22 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s infinite;
+  }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Print ───────────────────────────────────────────────────────────────── */
+
+@page {
+  size: A4 portrait;
+  /* 15mm top/bottom gives room for report header; 12mm sides keep it tight */
+  margin: 15mm 12mm;
+}
+
+@media print {
+  /* Force browsers to render background colours and images in print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Kill screen-only noise */
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Scrollbars gone */
+  ::-webkit-scrollbar { display: none; }
+
+  /* Root stays white — the PrintLayout handles all content colouring */
+  html, body {
+    background: white !important;
+    color: #111 !important;
+    font-size: 12px;
+  }
+
+  /* Don't orphan section headings or cards */
+  h1, h2, h3, h4 { break-after: avoid; }
+  table           { break-inside: avoid; }
+}
